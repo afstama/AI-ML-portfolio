@@ -2,7 +2,7 @@
 
 Early-career AI/Data Science engineer with a background in machine learning, deep learning, NLP, and scientific data analysis. MSc in Computer Science from the University of Zagreb (FER) with an exchange year at KU Leuven. Currently working as a Junior GenAI Solution Engineer at Nexi Group.
 
-📧 anafrancesca.stama@fer.hr · [LinkedIn](https://linkedin.com/in/ana-francesca-stama)
+📧 anafrancesca64@gmail.com · [LinkedIn](https://linkedin.com/in/ana-francesca-stama)
 
 ---
 
