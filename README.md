@@ -17,6 +17,24 @@ Predicts lipophilicity (a key drug ADMET property) from molecular structure by f
 
 ---
 
+### 👶 [Newborn Birth-Weight Prediction](birth-weight-prediction/)
+**MSc Course · FER Zagreb · 2024 · Team project**
+
+Predicts newborn birth weight from maternal features, and **reproduces & critically evaluates** a published paper — showing its reported accuracy did not survive a leakage-free evaluation. Covers preprocessing, regression and classification model comparison, grid search, and a metaheuristic extension.
+
+`Python` `Scikit-Learn` `Pandas` `Matplotlib`
+
+---
+
+### 🧭 [Evolutionary Algorithm for the Traveling Salesman Problem](evolutionary-algorithm-tsp/)
+**MSc Course · KU Leuven · 2024**
+
+A Numba-accelerated evolutionary algorithm for TSP instances up to 1000 cities — heuristic initialization, order crossover, multiple mutation operators, 2-opt local search, and fitness sharing to preserve population diversity.
+
+`Python` `NumPy` `Numba`
+
+---
+
 ### 📊 [Data Mining & Neural Networks](data-mining-neural-networks/)
 **MSc Course · KU Leuven · 2024**
 
@@ -32,15 +50,6 @@ Three exercise sets covering: backpropagation from scratch, time series forecast
 Three assignments covering OpenCV-based video/image processing, deep learning image classification with k-fold cross-validation, and ResNet fine-tuning for transfer learning.
 
 `Python` `OpenCV` `PyTorch`
-
----
-
-### 🤖 [Introduction to AI — Labs](intro-to-ai-labs/)
-**BSc Course · FER Zagreb · 2023**
-
-Four labs implementing core AI algorithms from scratch: state space search & MDPs, resolution-based theorem proving, ID3 decision tree & Naive Bayes, and a feedforward neural network with backpropagation.
-
-`Python` `NumPy`
 
 ---
 
@@ -67,3 +76,9 @@ Classifies 60+ years of historical flood waves on the Sava River using B-spline/
 - **MSc Computer Science** · University of Zagreb, FER · 2023–2025 · GPA 4.7/5
 - **Exchange Year** · KU Leuven, Faculty of Engineering Science · 2023–2024
 - **BSc Computer Science** · University of Zagreb, FER · 2020–2023 · GPA 4.1/5
+
+---
+
+## Certifications
+
+- **Fundamentals of Deep Learning** · NVIDIA Deep Learning Institute · [verify](https://courses.nvidia.com/certificates/f279d24ff0344e338694cb8d136342d5)
