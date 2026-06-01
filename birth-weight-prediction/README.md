@@ -1,7 +1,7 @@
 # Newborn Birth-Weight Prediction from Maternal Features
 
 **MSc Course — Introduction to Data Science** · University of Zagreb, FER · 2024
-👥 *Three-person team project — Collaborator (anonymized), Ana Francesca Stama, Collaborator (anonymized)*
+👥 *Three-person team project*
 
 ---
 
