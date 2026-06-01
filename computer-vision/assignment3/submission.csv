@@ -1,0 +1,1501 @@
+Id,Predicted
+0_classification,15 1 17 1
+0_segmentation,
+1_classification,15 1
+1_segmentation,
+2_classification,4 1 15 1
+2_segmentation,
+3_classification,16 1
+3_segmentation,
+4_classification,3 1 18 1 20 1
+4_segmentation,
+5_classification,
+5_segmentation,
+6_classification,7 1
+6_segmentation,
+7_classification,15 1
+7_segmentation,
+8_classification,7 1 12 1 14 1 20 1
+8_segmentation,
+9_classification,
+9_segmentation,
+10_classification,5 1 15 1
+10_segmentation,
+11_classification,14 2
+11_segmentation,
+12_classification,
+12_segmentation,
+13_classification,3 1 9 1 15 1
+13_segmentation,
+14_classification,4 1
+14_segmentation,
+15_classification,8 1 10 1
+15_segmentation,
+16_classification,3 1
+16_segmentation,
+17_classification,4 1 12 1
+17_segmentation,
+18_classification,15 1
+18_segmentation,
+19_classification,11 1 15 1 19 1
+19_segmentation,
+20_classification,10 2 15 1 18 1
+20_segmentation,
+21_classification,
+21_segmentation,
+22_classification,4 1 18 1
+22_segmentation,
+23_classification,
+23_segmentation,
+24_classification,
+24_segmentation,
+25_classification,8 1
+25_segmentation,
+26_classification,3 1 5 1 9 1 11 1 15 1
+26_segmentation,
+27_classification,1 1 6 1
+27_segmentation,
+28_classification,12 1
+28_segmentation,
+29_classification,7 3
+29_segmentation,
+30_classification,4 1 15 1
+30_segmentation,
+31_classification,11 1
+31_segmentation,
+32_classification,
+32_segmentation,
+33_classification,
+33_segmentation,
+34_classification,3 1 12 1 18 1
+34_segmentation,
+35_classification,9 1 15 1
+35_segmentation,
+36_classification,3 1
+36_segmentation,
+37_classification,1 1 3 1 15 1 18 1
+37_segmentation,
+38_classification,
+38_segmentation,
+39_classification,
+39_segmentation,
+40_classification,1 1 15 1
+40_segmentation,
+41_classification,2 1 4 1 18 1
+41_segmentation,
+42_classification,13 1
+42_segmentation,
+43_classification,
+43_segmentation,
+44_classification,
+44_segmentation,
+45_classification,4 1 12 1
+45_segmentation,
+46_classification,8 1 12 1
+46_segmentation,
+47_classification,3 1 15 1
+47_segmentation,
+48_classification,9 1
+48_segmentation,
+49_classification,11 1
+49_segmentation,
+50_classification,2 1 5 1 8 1 15 1
+50_segmentation,
+51_classification,
+51_segmentation,
+52_classification,5 1 12 1
+52_segmentation,
+53_classification,3 2 7 1 11 1
+53_segmentation,
+54_classification,7 1 15 1 17 1
+54_segmentation,
+55_classification,18 1
+55_segmentation,
+56_classification,11 1
+56_segmentation,
+57_classification,11 1
+57_segmentation,
+58_classification,6 1
+58_segmentation,
+59_classification,19 1
+59_segmentation,
+60_classification,11 1 14 1
+60_segmentation,
+61_classification,15 1 20 1
+61_segmentation,
+62_classification,
+62_segmentation,
+63_classification,12 1
+63_segmentation,
+64_classification,3 1 9 1 15 1
+64_segmentation,
+65_classification,12 1
+65_segmentation,
+66_classification,2 2 9 1
+66_segmentation,
+67_classification,
+67_segmentation,
+68_classification,14 2
+68_segmentation,
+69_classification,2 1
+69_segmentation,
+70_classification,8 1 15 1
+70_segmentation,
+71_classification,1 1
+71_segmentation,
+72_classification,15 1
+72_segmentation,
+73_classification,11 1
+73_segmentation,
+74_classification,1 1 3 1 16 1 19 1
+74_segmentation,
+75_classification,11 1
+75_segmentation,
+76_classification,
+76_segmentation,
+77_classification,15 1
+77_segmentation,
+78_classification,3 1 7 1 15 2
+78_segmentation,
+79_classification,8 1 15 1
+79_segmentation,
+80_classification,18 1
+80_segmentation,
+81_classification,13 3
+81_segmentation,
+82_classification,
+82_segmentation,
+83_classification,19 1
+83_segmentation,
+84_classification,4 1 15 1
+84_segmentation,
+85_classification,4 1 13 1 15 1
+85_segmentation,
+86_classification,14 1
+86_segmentation,
+87_classification,8 1 15 1
+87_segmentation,
+88_classification,15 1
+88_segmentation,
+89_classification,
+89_segmentation,
+90_classification,5 1 8 1 18 1
+90_segmentation,
+91_classification,
+91_segmentation,
+92_classification,
+92_segmentation,
+93_classification,
+93_segmentation,
+94_classification,15 1 19 1
+94_segmentation,
+95_classification,
+95_segmentation,
+96_classification,1 1 4 1 11 1 15 1 17 1 20 1
+96_segmentation,
+97_classification,7 2 15 1
+97_segmentation,
+98_classification,15 1
+98_segmentation,
+99_classification,13 1
+99_segmentation,
+100_classification,14 2
+100_segmentation,
+101_classification,1 1 13 1
+101_segmentation,
+102_classification,12 1 16 1
+102_segmentation,
+103_classification,15 1
+103_segmentation,
+104_classification,
+104_segmentation,
+105_classification,11 1
+105_segmentation,
+106_classification,3 1 15 1
+106_segmentation,
+107_classification,3 1 15 2
+107_segmentation,
+108_classification,15 1
+108_segmentation,
+109_classification,2 1 19 1
+109_segmentation,
+110_classification,16 1
+110_segmentation,
+111_classification,3 1 7 1
+111_segmentation,
+112_classification,3 2
+112_segmentation,
+113_classification,
+113_segmentation,
+114_classification,9 1 12 1
+114_segmentation,
+115_classification,
+115_segmentation,
+116_classification,
+116_segmentation,
+117_classification,10 1
+117_segmentation,
+118_classification,
+118_segmentation,
+119_classification,
+119_segmentation,
+120_classification,3 1 7 1 14 1 16 1
+120_segmentation,
+121_classification,7 1 9 1 12 1
+121_segmentation,
+122_classification,1 1
+122_segmentation,
+123_classification,3 1 7 1 15 1
+123_segmentation,
+124_classification,1 1 12 1
+124_segmentation,
+125_classification,
+125_segmentation,
+126_classification,
+126_segmentation,
+127_classification,20 1
+127_segmentation,
+128_classification,
+128_segmentation,
+129_classification,15 1
+129_segmentation,
+130_classification,
+130_segmentation,
+131_classification,1 1
+131_segmentation,
+132_classification,14 1
+132_segmentation,
+133_classification,
+133_segmentation,
+134_classification,15 1
+134_segmentation,
+135_classification,15 1
+135_segmentation,
+136_classification,
+136_segmentation,
+137_classification,
+137_segmentation,
+138_classification,15 1
+138_segmentation,
+139_classification,17 1
+139_segmentation,
+140_classification,3 1
+140_segmentation,
+141_classification,12 1 15 1
+141_segmentation,
+142_classification,
+142_segmentation,
+143_classification,
+143_segmentation,
+144_classification,
+144_segmentation,
+145_classification,1 1 14 3
+145_segmentation,
+146_classification,4 1 13 1
+146_segmentation,
+147_classification,9 1 15 1
+147_segmentation,
+148_classification,5 1 7 1 15 1
+148_segmentation,
+149_classification,2 1 8 1
+149_segmentation,
+150_classification,8 1
+150_segmentation,
+151_classification,15 1
+151_segmentation,
+152_classification,
+152_segmentation,
+153_classification,
+153_segmentation,
+154_classification,7 1
+154_segmentation,
+155_classification,
+155_segmentation,
+156_classification,3 1 9 1 15 1
+156_segmentation,
+157_classification,15 1
+157_segmentation,
+158_classification,
+158_segmentation,
+159_classification,9 2
+159_segmentation,
+160_classification,6 1 20 1
+160_segmentation,
+161_classification,1 1 15 1
+161_segmentation,
+162_classification,1 2 10 1 12 1
+162_segmentation,
+163_classification,7 2
+163_segmentation,
+164_classification,1 1 4 1 12 1
+164_segmentation,
+165_classification,19 1
+165_segmentation,
+166_classification,15 1
+166_segmentation,
+167_classification,11 1 14 2
+167_segmentation,
+168_classification,
+168_segmentation,
+169_classification,15 1
+169_segmentation,
+170_classification,9 1 14 2
+170_segmentation,
+171_classification,
+171_segmentation,
+172_classification,10 1 14 1 17 1
+172_segmentation,
+173_classification,15 1 20 1
+173_segmentation,
+174_classification,15 1
+174_segmentation,
+175_classification,4 1 14 2
+175_segmentation,
+176_classification,15 1
+176_segmentation,
+177_classification,
+177_segmentation,
+178_classification,15 1
+178_segmentation,
+179_classification,3 1 8 2
+179_segmentation,
+180_classification,15 1 18 1
+180_segmentation,
+181_classification,1 1 8 1 11 1
+181_segmentation,
+182_classification,
+182_segmentation,
+183_classification,15 1
+183_segmentation,
+184_classification,1 1
+184_segmentation,
+185_classification,2 1 18 1
+185_segmentation,
+186_classification,17 1
+186_segmentation,
+187_classification,1 1 3 1
+187_segmentation,
+188_classification,
+188_segmentation,
+189_classification,15 1 20 1
+189_segmentation,
+190_classification,6 2 9 1 15 1
+190_segmentation,
+191_classification,1 1
+191_segmentation,
+192_classification,16 2
+192_segmentation,
+193_classification,
+193_segmentation,
+194_classification,9 1 11 1
+194_segmentation,
+195_classification,
+195_segmentation,
+196_classification,5 1 17 1
+196_segmentation,
+197_classification,7 2
+197_segmentation,
+198_classification,9 1 15 1
+198_segmentation,
+199_classification,5 1 7 2 15 1
+199_segmentation,
+200_classification,5 1
+200_segmentation,
+201_classification,15 1 20 1
+201_segmentation,
+202_classification,4 1 15 1
+202_segmentation,
+203_classification,12 1 18 1
+203_segmentation,
+204_classification,5 1 15 1
+204_segmentation,
+205_classification,4 1
+205_segmentation,
+206_classification,
+206_segmentation,
+207_classification,3 1
+207_segmentation,
+208_classification,
+208_segmentation,
+209_classification,
+209_segmentation,
+210_classification,15 1
+210_segmentation,
+211_classification,
+211_segmentation,
+212_classification,9 1 11 1
+212_segmentation,
+213_classification,9 1
+213_segmentation,
+214_classification,7 1
+214_segmentation,
+215_classification,3 1 7 1 11 1
+215_segmentation,
+216_classification,
+216_segmentation,
+217_classification,11 1 15 1
+217_segmentation,
+218_classification,13 1 15 1
+218_segmentation,
+219_classification,4 1 15 1 19 1
+219_segmentation,
+220_classification,2 1 5 2 9 1 17 1 19 1
+220_segmentation,
+221_classification,11 1 17 1
+221_segmentation,
+222_classification,
+222_segmentation,
+223_classification,2 1
+223_segmentation,
+224_classification,11 1
+224_segmentation,
+225_classification,9 1 15 1 20 1
+225_segmentation,
+226_classification,15 1
+226_segmentation,
+227_classification,15 1
+227_segmentation,
+228_classification,1 1 6 1
+228_segmentation,
+229_classification,17 1
+229_segmentation,
+230_classification,13 1 17 1
+230_segmentation,
+231_classification,15 1
+231_segmentation,
+232_classification,1 1 15 1
+232_segmentation,
+233_classification,15 1
+233_segmentation,
+234_classification,20 1
+234_segmentation,
+235_classification,19 1
+235_segmentation,
+236_classification,10 1
+236_segmentation,
+237_classification,1 1 4 1
+237_segmentation,
+238_classification,1 1 6 1 11 1 19 2
+238_segmentation,
+239_classification,1 1 3 2 7 1
+239_segmentation,
+240_classification,
+240_segmentation,
+241_classification,3 1 12 1 14 1
+241_segmentation,
+242_classification,
+242_segmentation,
+243_classification,15 1
+243_segmentation,
+244_classification,
+244_segmentation,
+245_classification,
+245_segmentation,
+246_classification,15 1 19 1
+246_segmentation,
+247_classification,5 1 18 1
+247_segmentation,
+248_classification,6 1 9 1
+248_segmentation,
+249_classification,9 1
+249_segmentation,
+250_classification,3 1
+250_segmentation,
+251_classification,3 1 8 1
+251_segmentation,
+252_classification,9 1
+252_segmentation,
+253_classification,
+253_segmentation,
+254_classification,14 1
+254_segmentation,
+255_classification,6 1
+255_segmentation,
+256_classification,1 1 8 1 17 1
+256_segmentation,
+257_classification,3 1 7 1 9 2 15 1
+257_segmentation,
+258_classification,4 1 14 1
+258_segmentation,
+259_classification,10 1 20 1
+259_segmentation,
+260_classification,11 1
+260_segmentation,
+261_classification,4 1 14 1 18 1
+261_segmentation,
+262_classification,11 1
+262_segmentation,
+263_classification,
+263_segmentation,
+264_classification,
+264_segmentation,
+265_classification,
+265_segmentation,
+266_classification,18 1 20 1
+266_segmentation,
+267_classification,9 1 13 1
+267_segmentation,
+268_classification,
+268_segmentation,
+269_classification,4 1 14 1 19 1
+269_segmentation,
+270_classification,10 1 15 1
+270_segmentation,
+271_classification,4 1 16 1 19 1
+271_segmentation,
+272_classification,15 1 18 1
+272_segmentation,
+273_classification,18 1
+273_segmentation,
+274_classification,
+274_segmentation,
+275_classification,11 1
+275_segmentation,
+276_classification,3 1 7 1
+276_segmentation,
+277_classification,
+277_segmentation,
+278_classification,15 1
+278_segmentation,
+279_classification,6 2
+279_segmentation,
+280_classification,
+280_segmentation,
+281_classification,2 2 18 1
+281_segmentation,
+282_classification,12 1 15 1
+282_segmentation,
+283_classification,
+283_segmentation,
+284_classification,3 1 12 1 14 1 20 1
+284_segmentation,
+285_classification,5 1 8 1 15 1 17 1
+285_segmentation,
+286_classification,6 1 8 2
+286_segmentation,
+287_classification,4 1 15 1
+287_segmentation,
+288_classification,14 1 16 1
+288_segmentation,
+289_classification,8 1
+289_segmentation,
+290_classification,
+290_segmentation,
+291_classification,1 1 15 1 19 2
+291_segmentation,
+292_classification,9 1 15 1
+292_segmentation,
+293_classification,5 1 15 1
+293_segmentation,
+294_classification,3 1 5 1 10 1 14 1 16 1
+294_segmentation,
+295_classification,15 1
+295_segmentation,
+296_classification,15 1
+296_segmentation,
+297_classification,3 1 15 1
+297_segmentation,
+298_classification,5 2 15 1
+298_segmentation,
+299_classification,11 1
+299_segmentation,
+300_classification,7 2 20 1
+300_segmentation,
+301_classification,
+301_segmentation,
+302_classification,19 1
+302_segmentation,
+303_classification,5 1 14 1
+303_segmentation,
+304_classification,11 1 14 1
+304_segmentation,
+305_classification,13 1 19 2
+305_segmentation,
+306_classification,
+306_segmentation,
+307_classification,11 1
+307_segmentation,
+308_classification,3 1 11 1
+308_segmentation,
+309_classification,
+309_segmentation,
+310_classification,3 1 16 1
+310_segmentation,
+311_classification,7 1
+311_segmentation,
+312_classification,
+312_segmentation,
+313_classification,13 1
+313_segmentation,
+314_classification,
+314_segmentation,
+315_classification,15 1 18 1
+315_segmentation,
+316_classification,
+316_segmentation,
+317_classification,
+317_segmentation,
+318_classification,14 1
+318_segmentation,
+319_classification,
+319_segmentation,
+320_classification,5 1 15 1 17 1
+320_segmentation,
+321_classification,
+321_segmentation,
+322_classification,4 1
+322_segmentation,
+323_classification,
+323_segmentation,
+324_classification,6 1 9 1 14 1
+324_segmentation,
+325_classification,19 2
+325_segmentation,
+326_classification,20 1
+326_segmentation,
+327_classification,12 1
+327_segmentation,
+328_classification,
+328_segmentation,
+329_classification,19 1
+329_segmentation,
+330_classification,3 1 14 2
+330_segmentation,
+331_classification,9 1 15 1
+331_segmentation,
+332_classification,2 1 9 1
+332_segmentation,
+333_classification,2 1 7 1
+333_segmentation,
+334_classification,13 1 16 1
+334_segmentation,
+335_classification,9 1 19 1
+335_segmentation,
+336_classification,5 2 9 1
+336_segmentation,
+337_classification,3 1
+337_segmentation,
+338_classification,15 1
+338_segmentation,
+339_classification,
+339_segmentation,
+340_classification,
+340_segmentation,
+341_classification,9 1
+341_segmentation,
+342_classification,5 1 18 1
+342_segmentation,
+343_classification,14 2
+343_segmentation,
+344_classification,
+344_segmentation,
+345_classification,1 1 15 1
+345_segmentation,
+346_classification,7 1 12 1 15 1 20 1
+346_segmentation,
+347_classification,15 2
+347_segmentation,
+348_classification,15 1
+348_segmentation,
+349_classification,
+349_segmentation,
+350_classification,5 1 14 1
+350_segmentation,
+351_classification,7 1
+351_segmentation,
+352_classification,4 2 15 1
+352_segmentation,
+353_classification,
+353_segmentation,
+354_classification,
+354_segmentation,
+355_classification,4 1 15 1
+355_segmentation,
+356_classification,1 1 20 1
+356_segmentation,
+357_classification,1 1 5 1 19 1
+357_segmentation,
+358_classification,5 1 18 1
+358_segmentation,
+359_classification,9 1
+359_segmentation,
+360_classification,1 1 16 1
+360_segmentation,
+361_classification,5 1
+361_segmentation,
+362_classification,
+362_segmentation,
+363_classification,14 1
+363_segmentation,
+364_classification,9 1 19 1
+364_segmentation,
+365_classification,
+365_segmentation,
+366_classification,
+366_segmentation,
+367_classification,
+367_segmentation,
+368_classification,17 1
+368_segmentation,
+369_classification,
+369_segmentation,
+370_classification,
+370_segmentation,
+371_classification,2 1 8 1 16 1
+371_segmentation,
+372_classification,12 1 14 1
+372_segmentation,
+373_classification,
+373_segmentation,
+374_classification,15 1
+374_segmentation,
+375_classification,2 1 13 1 20 1
+375_segmentation,
+376_classification,4 1 6 1 9 1
+376_segmentation,
+377_classification,8 1
+377_segmentation,
+378_classification,
+378_segmentation,
+379_classification,9 1
+379_segmentation,
+380_classification,9 1 13 1
+380_segmentation,
+381_classification,12 1 15 1
+381_segmentation,
+382_classification,9 1
+382_segmentation,
+383_classification,
+383_segmentation,
+384_classification,7 1 16 1
+384_segmentation,
+385_classification,5 1 9 1 12 1 15 1
+385_segmentation,
+386_classification,15 1 18 1
+386_segmentation,
+387_classification,3 1 5 1 8 2
+387_segmentation,
+388_classification,4 1 12 1 14 1 19 1
+388_segmentation,
+389_classification,8 1
+389_segmentation,
+390_classification,9 1
+390_segmentation,
+391_classification,
+391_segmentation,
+392_classification,15 1
+392_segmentation,
+393_classification,2 1 10 1 14 1 20 1
+393_segmentation,
+394_classification,2 2 13 2
+394_segmentation,
+395_classification,3 1 8 2
+395_segmentation,
+396_classification,1 1 10 1 12 1 14 1 16 1 20 1
+396_segmentation,
+397_classification,15 1
+397_segmentation,
+398_classification,4 1 15 1
+398_segmentation,
+399_classification,
+399_segmentation,
+400_classification,11 1
+400_segmentation,
+401_classification,14 1
+401_segmentation,
+402_classification,1 1 4 1
+402_segmentation,
+403_classification,9 1
+403_segmentation,
+404_classification,3 1 11 1
+404_segmentation,
+405_classification,15 1 18 1
+405_segmentation,
+406_classification,
+406_segmentation,
+407_classification,11 1 14 1 19 1
+407_segmentation,
+408_classification,17 1
+408_segmentation,
+409_classification,17 1
+409_segmentation,
+410_classification,8 1 11 1
+410_segmentation,
+411_classification,
+411_segmentation,
+412_classification,8 1
+412_segmentation,
+413_classification,15 1
+413_segmentation,
+414_classification,3 1 10 1 16 1
+414_segmentation,
+415_classification,11 1
+415_segmentation,
+416_classification,14 3
+416_segmentation,
+417_classification,15 1
+417_segmentation,
+418_classification,7 1 16 1
+418_segmentation,
+419_classification,19 1
+419_segmentation,
+420_classification,
+420_segmentation,
+421_classification,4 1
+421_segmentation,
+422_classification,15 1
+422_segmentation,
+423_classification,10 1 19 1
+423_segmentation,
+424_classification,15 1
+424_segmentation,
+425_classification,
+425_segmentation,
+426_classification,5 1 11 1 13 1
+426_segmentation,
+427_classification,
+427_segmentation,
+428_classification,12 1
+428_segmentation,
+429_classification,15 1
+429_segmentation,
+430_classification,
+430_segmentation,
+431_classification,4 2 7 1 18 1
+431_segmentation,
+432_classification,10 1 12 1
+432_segmentation,
+433_classification,6 1
+433_segmentation,
+434_classification,7 2 15 1
+434_segmentation,
+435_classification,7 1
+435_segmentation,
+436_classification,12 1
+436_segmentation,
+437_classification,7 1
+437_segmentation,
+438_classification,1 1 9 1 15 1
+438_segmentation,
+439_classification,20 1
+439_segmentation,
+440_classification,5 1 8 1
+440_segmentation,
+441_classification,16 1
+441_segmentation,
+442_classification,3 1 14 1
+442_segmentation,
+443_classification,7 1 15 1
+443_segmentation,
+444_classification,5 1
+444_segmentation,
+445_classification,
+445_segmentation,
+446_classification,15 1
+446_segmentation,
+447_classification,5 2 14 2
+447_segmentation,
+448_classification,15 1
+448_segmentation,
+449_classification,
+449_segmentation,
+450_classification,15 1 18 1
+450_segmentation,
+451_classification,8 1 15 1
+451_segmentation,
+452_classification,
+452_segmentation,
+453_classification,
+453_segmentation,
+454_classification,15 1
+454_segmentation,
+455_classification,1 3 7 1 15 1 18 1
+455_segmentation,
+456_classification,14 2 18 1 20 1
+456_segmentation,
+457_classification,15 1
+457_segmentation,
+458_classification,2 1 15 1
+458_segmentation,
+459_classification,19 1
+459_segmentation,
+460_classification,9 1 17 1
+460_segmentation,
+461_classification,6 1 12 1 15 1
+461_segmentation,
+462_classification,7 1 9 1 15 1
+462_segmentation,
+463_classification,
+463_segmentation,
+464_classification,19 1
+464_segmentation,
+465_classification,
+465_segmentation,
+466_classification,12 1
+466_segmentation,
+467_classification,11 1 19 1
+467_segmentation,
+468_classification,20 1
+468_segmentation,
+469_classification,13 1 15 1
+469_segmentation,
+470_classification,15 1 17 1
+470_segmentation,
+471_classification,11 1
+471_segmentation,
+472_classification,7 1 12 1
+472_segmentation,
+473_classification,16 1
+473_segmentation,
+474_classification,18 1 20 1
+474_segmentation,
+475_classification,1 1 15 1
+475_segmentation,
+476_classification,5 1
+476_segmentation,
+477_classification,7 1
+477_segmentation,
+478_classification,15 1
+478_segmentation,
+479_classification,1 1 11 1
+479_segmentation,
+480_classification,14 1
+480_segmentation,
+481_classification,
+481_segmentation,
+482_classification,
+482_segmentation,
+483_classification,15 1 20 1
+483_segmentation,
+484_classification,14 2
+484_segmentation,
+485_classification,8 1
+485_segmentation,
+486_classification,2 1
+486_segmentation,
+487_classification,9 1
+487_segmentation,
+488_classification,18 1
+488_segmentation,
+489_classification,
+489_segmentation,
+490_classification,6 1 11 1 16 1 19 1
+490_segmentation,
+491_classification,16 1
+491_segmentation,
+492_classification,4 1 17 1
+492_segmentation,
+493_classification,16 1
+493_segmentation,
+494_classification,
+494_segmentation,
+495_classification,15 1
+495_segmentation,
+496_classification,
+496_segmentation,
+497_classification,1 1 17 1 20 1
+497_segmentation,
+498_classification,13 1
+498_segmentation,
+499_classification,19 1
+499_segmentation,
+500_classification,4 2 12 1 18 1
+500_segmentation,
+501_classification,9 2 17 1
+501_segmentation,
+502_classification,7 1
+502_segmentation,
+503_classification,5 1 9 1 11 1
+503_segmentation,
+504_classification,
+504_segmentation,
+505_classification,8 1 15 1
+505_segmentation,
+506_classification,
+506_segmentation,
+507_classification,7 1
+507_segmentation,
+508_classification,15 1
+508_segmentation,
+509_classification,4 1 6 1
+509_segmentation,
+510_classification,15 1
+510_segmentation,
+511_classification,7 1 11 1
+511_segmentation,
+512_classification,2 1 16 1
+512_segmentation,
+513_classification,4 1 16 2
+513_segmentation,
+514_classification,9 1
+514_segmentation,
+515_classification,7 1
+515_segmentation,
+516_classification,
+516_segmentation,
+517_classification,4 1 7 1
+517_segmentation,
+518_classification,9 1 15 1
+518_segmentation,
+519_classification,9 1
+519_segmentation,
+520_classification,4 1 15 1
+520_segmentation,
+521_classification,
+521_segmentation,
+522_classification,14 1
+522_segmentation,
+523_classification,8 1 10 1
+523_segmentation,
+524_classification,7 1 18 1
+524_segmentation,
+525_classification,4 2 15 1 19 1
+525_segmentation,
+526_classification,15 1 20 1
+526_segmentation,
+527_classification,
+527_segmentation,
+528_classification,
+528_segmentation,
+529_classification,15 1
+529_segmentation,
+530_classification,
+530_segmentation,
+531_classification,1 1 18 1 20 1
+531_segmentation,
+532_classification,18 1
+532_segmentation,
+533_classification,7 1 10 1
+533_segmentation,
+534_classification,7 1 15 1
+534_segmentation,
+535_classification,19 1
+535_segmentation,
+536_classification,15 1
+536_segmentation,
+537_classification,15 1
+537_segmentation,
+538_classification,17 1
+538_segmentation,
+539_classification,9 1 16 1 18 1
+539_segmentation,
+540_classification,15 1
+540_segmentation,
+541_classification,4 1
+541_segmentation,
+542_classification,12 1 15 1
+542_segmentation,
+543_classification,5 1 7 1
+543_segmentation,
+544_classification,2 1 7 1 15 1
+544_segmentation,
+545_classification,10 1 15 1 18 1
+545_segmentation,
+546_classification,15 1 18 1
+546_segmentation,
+547_classification,
+547_segmentation,
+548_classification,
+548_segmentation,
+549_classification,4 1 10 1
+549_segmentation,
+550_classification,13 2
+550_segmentation,
+551_classification,6 1 19 1
+551_segmentation,
+552_classification,15 1
+552_segmentation,
+553_classification,
+553_segmentation,
+554_classification,6 1 20 1
+554_segmentation,
+555_classification,11 1
+555_segmentation,
+556_classification,
+556_segmentation,
+557_classification,14 1 20 1
+557_segmentation,
+558_classification,2 1
+558_segmentation,
+559_classification,1 1 17 1 20 1
+559_segmentation,
+560_classification,18 1
+560_segmentation,
+561_classification,
+561_segmentation,
+562_classification,4 1 15 1
+562_segmentation,
+563_classification,7 1 18 1
+563_segmentation,
+564_classification,16 1
+564_segmentation,
+565_classification,
+565_segmentation,
+566_classification,4 1 15 1 18 1
+566_segmentation,
+567_classification,13 1
+567_segmentation,
+568_classification,12 2 15 1 17 1
+568_segmentation,
+569_classification,8 1 13 1
+569_segmentation,
+570_classification,7 1 9 1
+570_segmentation,
+571_classification,9 1
+571_segmentation,
+572_classification,3 1 19 1
+572_segmentation,
+573_classification,5 1
+573_segmentation,
+574_classification,5 1 8 1
+574_segmentation,
+575_classification,14 1
+575_segmentation,
+576_classification,9 1 15 1 18 1
+576_segmentation,
+577_classification,1 1
+577_segmentation,
+578_classification,14 2
+578_segmentation,
+579_classification,2 1
+579_segmentation,
+580_classification,
+580_segmentation,
+581_classification,14 2
+581_segmentation,
+582_classification,2 2 7 1 13 1 15 1
+582_segmentation,
+583_classification,
+583_segmentation,
+584_classification,
+584_segmentation,
+585_classification,15 1
+585_segmentation,
+586_classification,9 1
+586_segmentation,
+587_classification,
+587_segmentation,
+588_classification,2 1 13 1 15 1 20 1
+588_segmentation,
+589_classification,7 1
+589_segmentation,
+590_classification,
+590_segmentation,
+591_classification,6 1
+591_segmentation,
+592_classification,2 1 11 1
+592_segmentation,
+593_classification,
+593_segmentation,
+594_classification,
+594_segmentation,
+595_classification,5 1
+595_segmentation,
+596_classification,
+596_segmentation,
+597_classification,1 1 14 2
+597_segmentation,
+598_classification,15 1
+598_segmentation,
+599_classification,2 1 9 2
+599_segmentation,
+600_classification,15 1
+600_segmentation,
+601_classification,15 1
+601_segmentation,
+602_classification,15 1 19 1
+602_segmentation,
+603_classification,6 1 15 1
+603_segmentation,
+604_classification,8 1
+604_segmentation,
+605_classification,10 1
+605_segmentation,
+606_classification,8 1
+606_segmentation,
+607_classification,10 1 17 1
+607_segmentation,
+608_classification,4 1
+608_segmentation,
+609_classification,
+609_segmentation,
+610_classification,15 1
+610_segmentation,
+611_classification,4 1 12 1 15 1
+611_segmentation,
+612_classification,7 1
+612_segmentation,
+613_classification,7 1
+613_segmentation,
+614_classification,1 1 19 1
+614_segmentation,
+615_classification,11 1
+615_segmentation,
+616_classification,3 1 6 1 11 1 15 1 18 1
+616_segmentation,
+617_classification,6 1
+617_segmentation,
+618_classification,
+618_segmentation,
+619_classification,15 1
+619_segmentation,
+620_classification,5 1 11 1 15 1 19 1
+620_segmentation,
+621_classification,15 1
+621_segmentation,
+622_classification,15 1
+622_segmentation,
+623_classification,
+623_segmentation,
+624_classification,3 1 9 1 11 1 15 1
+624_segmentation,
+625_classification,11 1 13 1 15 1
+625_segmentation,
+626_classification,
+626_segmentation,
+627_classification,7 2 14 1
+627_segmentation,
+628_classification,6 1
+628_segmentation,
+629_classification,16 1 18 1
+629_segmentation,
+630_classification,20 1
+630_segmentation,
+631_classification,
+631_segmentation,
+632_classification,3 2 11 1 15 1
+632_segmentation,
+633_classification,4 1
+633_segmentation,
+634_classification,
+634_segmentation,
+635_classification,3 1 9 1 13 1 15 1
+635_segmentation,
+636_classification,15 1
+636_segmentation,
+637_classification,1 1
+637_segmentation,
+638_classification,1 1 19 1
+638_segmentation,
+639_classification,15 1
+639_segmentation,
+640_classification,16 1
+640_segmentation,
+641_classification,2 1
+641_segmentation,
+642_classification,
+642_segmentation,
+643_classification,7 2
+643_segmentation,
+644_classification,9 1
+644_segmentation,
+645_classification,9 1 15 1
+645_segmentation,
+646_classification,11 1
+646_segmentation,
+647_classification,
+647_segmentation,
+648_classification,
+648_segmentation,
+649_classification,1 1 7 2 15 1
+649_segmentation,
+650_classification,9 1 15 2
+650_segmentation,
+651_classification,3 1 7 1 14 1
+651_segmentation,
+652_classification,14 1
+652_segmentation,
+653_classification,4 2
+653_segmentation,
+654_classification,11 1 20 1
+654_segmentation,
+655_classification,1 1
+655_segmentation,
+656_classification,7 1 9 1 20 1
+656_segmentation,
+657_classification,2 1 7 1
+657_segmentation,
+658_classification,
+658_segmentation,
+659_classification,5 1 11 1
+659_segmentation,
+660_classification,20 1
+660_segmentation,
+661_classification,14 1 16 1
+661_segmentation,
+662_classification,
+662_segmentation,
+663_classification,6 1 11 1
+663_segmentation,
+664_classification,4 1 16 1
+664_segmentation,
+665_classification,1 1
+665_segmentation,
+666_classification,
+666_segmentation,
+667_classification,15 1
+667_segmentation,
+668_classification,7 1 13 1 18 1
+668_segmentation,
+669_classification,
+669_segmentation,
+670_classification,8 1 12 1 15 1 20 1
+670_segmentation,
+671_classification,3 1
+671_segmentation,
+672_classification,5 1 8 1 12 1 14 1
+672_segmentation,
+673_classification,12 1 15 1
+673_segmentation,
+674_classification,10 1
+674_segmentation,
+675_classification,13 1 15 1
+675_segmentation,
+676_classification,2 1
+676_segmentation,
+677_classification,15 1
+677_segmentation,
+678_classification,5 1
+678_segmentation,
+679_classification,16 1
+679_segmentation,
+680_classification,16 1
+680_segmentation,
+681_classification,
+681_segmentation,
+682_classification,5 1 13 1
+682_segmentation,
+683_classification,3 2 6 1 16 1 19 1
+683_segmentation,
+684_classification,5 1 15 1
+684_segmentation,
+685_classification,7 1 11 1 17 1
+685_segmentation,
+686_classification,
+686_segmentation,
+687_classification,9 1 16 1
+687_segmentation,
+688_classification,8 1 15 1
+688_segmentation,
+689_classification,
+689_segmentation,
+690_classification,11 1 17 1
+690_segmentation,
+691_classification,
+691_segmentation,
+692_classification,2 1 6 1 9 1
+692_segmentation,
+693_classification,6 2
+693_segmentation,
+694_classification,9 1 19 1
+694_segmentation,
+695_classification,7 2 16 1
+695_segmentation,
+696_classification,
+696_segmentation,
+697_classification,3 1
+697_segmentation,
+698_classification,11 1 15 1
+698_segmentation,
+699_classification,10 1
+699_segmentation,
+700_classification,3 1
+700_segmentation,
+701_classification,15 1
+701_segmentation,
+702_classification,6 1
+702_segmentation,
+703_classification,3 1 15 1
+703_segmentation,
+704_classification,
+704_segmentation,
+705_classification,14 1
+705_segmentation,
+706_classification,4 1 13 1 17 1
+706_segmentation,
+707_classification,5 1 13 1
+707_segmentation,
+708_classification,5 1
+708_segmentation,
+709_classification,4 1
+709_segmentation,
+710_classification,9 1
+710_segmentation,
+711_classification,18 1
+711_segmentation,
+712_classification,7 1 16 1
+712_segmentation,
+713_classification,2 2 15 1 20 1
+713_segmentation,
+714_classification,5 1
+714_segmentation,
+715_classification,
+715_segmentation,
+716_classification,1 3 15 2
+716_segmentation,
+717_classification,9 1 14 1 20 1
+717_segmentation,
+718_classification,15 1 17 2
+718_segmentation,
+719_classification,15 1
+719_segmentation,
+720_classification,1 1 3 1 18 1
+720_segmentation,
+721_classification,3 1 16 1 20 1
+721_segmentation,
+722_classification,11 1 16 1
+722_segmentation,
+723_classification,12 1
+723_segmentation,
+724_classification,1 1 15 2
+724_segmentation,
+725_classification,5 1 9 1
+725_segmentation,
+726_classification,8 1 12 1 15 1
+726_segmentation,
+727_classification,
+727_segmentation,
+728_classification,5 1 7 1 12 1
+728_segmentation,
+729_classification,4 1 13 1
+729_segmentation,
+730_classification,13 1
+730_segmentation,
+731_classification,
+731_segmentation,
+732_classification,4 1 10 1
+732_segmentation,
+733_classification,17 1
+733_segmentation,
+734_classification,
+734_segmentation,
+735_classification,11 1 15 1 20 1
+735_segmentation,
+736_classification,
+736_segmentation,
+737_classification,19 1
+737_segmentation,
+738_classification,1 1
+738_segmentation,
+739_classification,5 1 12 1
+739_segmentation,
+740_classification,6 1 15 1
+740_segmentation,
+741_classification,11 2
+741_segmentation,
+742_classification,15 1
+742_segmentation,
+743_classification,
+743_segmentation,
+744_classification,20 1
+744_segmentation,
+745_classification,11 1
+745_segmentation,
+746_classification,11 1
+746_segmentation,
+747_classification,7 1
+747_segmentation,
+748_classification,6 1 19 1
+748_segmentation,
+749_classification,7 1
+749_segmentation,

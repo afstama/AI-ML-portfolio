@@ -1,0 +1,383 @@
+---
+title: "explAnalysis"
+author: "Ana Francesca Stama"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(zoo)
+library(fda)
+```
+
+## Učitavanje i pregled podataka
+
+```{r}
+INPUT_FILE <- "Zagreb_dnevniQ-1960-2019.csv"
+INPUT_FILE_BASEFLOW <- "Zagreb_baseflow.csv"
+```
+```{r}
+df <- read_csv(INPUT_FILE)
+spec(df)
+```
+```{r}
+df_base <- read_csv(INPUT_FILE_BASEFLOW)
+spec(df_base)
+df_base[, c(4, 6)]
+```
+
+```{r}
+names(df) <- c("date", "flow")
+
+df$date <- dmy(df$date)
+df$year <- year(df$date)
+df$baseflow <- df_base$baseflow
+
+df[month(df$date) >= 10, ]$year <- df[month(df$date) >= 10, ]$year + 1
+
+summary(df)
+```
+```{r}
+df$floworig <- df$flow
+df$flow <- df$flow - df$baseflow
+
+df <- filter(df, !is.na(flow))
+
+summary(df)
+```
+```{r}
+df %>% group_by(year) %>% summarise(flow = max(flow), flowDesc = "peak") -> dfMax
+dfMax
+df %>% full_join(dfMax) -> df
+```
+```{r}
+df
+```
+
+```{r}
+#df %>% ggplot(aes(x = date, y = floworig)) + geom_line()
+df %>% ggplot(aes(x = date, y = flow)) + geom_line()
+```
+## Problem Nove Godine
+
+```{r}
+LEFT_CUTOFF <- dmy("1.1.1960")
+RIGHT_CUTOFF <- dmy("1.1.1972")
+
+LEFT_CUTOFF
+df$dekada <- year(df$date) %>% `%%`(100) %>% `%/%`(10)
+unique(df$dekada)
+
+df$godina <- year(df$date) %>% `%%`(10)
+unique(df$godina)
+
+df %>% filter(date >= LEFT_CUTOFF, date <= RIGHT_CUTOFF) %>% ggplot(aes(date, flow)) + geom_line() + 
+  geom_vline(aes(xintercept = datum), data = data.frame(datum = seq(dmy("1.1.1960"), dmy("1.1.2020"), by = "year")),  col = "blue")  +
+  geom_vline(aes(xintercept = date), data = filter(df, !is.na(flowDesc)),  col = "red", linetype = 2)
+```
+
+
+## Traženje peak-ova
+
+```{r}
+peakDates <- df %>% filter(flowDesc == "peak") %>% pull(date) %>% as.character
+##peakDates <- (df %>% filter(flowDesc == "peak"))$date
+peakDates
+```
+## Postavljanje segmenata
+
+```{r}
+df$peak_number <- as.numeric(NA)
+peak_number <- 1
+curr_year <- numeric()
+
+overlap_counter <- 0
+
+for (d in peakDates) {
+ curr_year <- year(as.Date(d))
+ df[df$date == as.Date(d), ]$peak_number <- peak_number
+ 
+ # šetnja po datumima prije peak-a
+ for (dPast in as.character(seq(as.Date(d) - 1, min(df$date), -1))) {
+   if (!is.na(df[df$date == as.Date(dPast), ]$flowDesc)) overlap_counter <- overlap_counter + 1
+   df[df$date == as.Date(dPast), ]$peak_number <- peak_number
+   
+   if (curr_year > year(as.Date(dPast))) {
+     df[df$date == as.Date(dPast), ]$year <- curr_year
+   }
+
+   if (round(df[df$date == as.Date(dPast), ]$floworig, 0) ==round(df[df$date == as.Date(dPast), ]$baseflow, 0)) {
+     df[df$date == as.Date(dPast),]$flowDesc <- "waveStart"
+     break
+   } else df[df$date == as.Date(dPast), ]$flowDesc = "leftSegment"
+ }
+  
+ 
+  # šetnja po datumima poslije peak-a
+  for (dFuture in as.character(seq(as.Date(d) + 1, max(df$date), 1))) {
+    if (!is.na(df[df$date == as.Date(dFuture), ]$flowDesc)) overlap_counter <- overlap_counter + 1
+    
+   df[df$date == as.Date(dFuture), ]$peak_number <- peak_number
+   
+   if (curr_year < year(as.Date(dFuture))) {
+     df[df$date == as.Date(dFuture), ]$year <- curr_year
+   }
+   
+   if (round(df[df$date == as.Date(dFuture), ]$floworig, 0) == round(df[df$date == as.Date(dFuture), ]$baseflow, 0)) {
+     df[df$date == as.Date(dFuture),]$flowDesc <- "waveEnd"
+     break
+   } else df[df$date == as.Date(dFuture), ]$flowDesc = "rightSegment"
+  }
+ 
+ curr_year <- curr_year + 1
+ peak_number <- peak_number + 1
+}
+
+
+startDates <- df %>% filter(flowDesc == "waveStart") %>% pull(date) 
+endDates <- df %>% filter(flowDesc == "waveEnd") %>% pull(date) 
+
+df$flowDay <- as.numeric(NA)
+
+for (i in 1:length(startDates)) {
+  df[df$date >= startDates[i] & df$date <= endDates[i], "flowDay"] <- 
+    0:(as.numeric(endDates[i] - startDates[i]))
+}
+df
+```
+```{r}
+df %>% filter(flowDesc == "peak") %>% dplyr::select(year, peakDay = flowDay) %>% 
+   full_join(df) -> df
+df
+```
+```{r}
+df %>% mutate(flowDayShifted = flowDay - peakDay) -> df
+df
+```
+
+
+## Checkpoint
+```{r}
+df_checkpoint_1 <- df
+```
+
+## Fix zbog preklapanja
+```{r}
+df <- df_checkpoint_1
+```
+```{r}
+# nisam sigurna čemu ovo
+leftmostDay <- df %>% filter(flowDesc=="waveStart") %>% pull(flowDayShifted) %>% min
+rightmostDay <- df %>% filter(flowDesc=="waveEnd") %>% pull(flowDayShifted) %>% max
+leftmostDay
+rightmostDay
+```
+```{r}
+waveStartDates <- df %>% filter(flowDesc == "waveStart") %>% pull(date) %>% as.character
+waveEndDates <- df %>% filter(flowDesc == "waveEnd") %>% pull(date) %>% as.character
+
+for (d in waveStartDates) {
+   dd <- as.Date(d)
+   yearNo <- df %>% filter(date == d) %>% pull(year)
+   peakNo <- df %>% filter(date == d) %>% pull(peak_number)
+   leftDay <- df %>% filter(date == d) %>% pull(flowDayShifted)
+   #print(str_c(year, peakNo, leftDay, sep = " "))
+   
+   while (leftDay > leftmostDay) {
+      leftDay <- leftDay - 1
+      dd <- dd - 1
+      df %>% mutate(is.date = date == dd,
+                    flowDesc = ifelse(is.date, "extensionLeft", flowDesc), 
+                    peak_number = ifelse(is.date, peakNo, peak_number),
+                    year = ifelse(is.date, yearNo, year),
+                    flowDayShifted = ifelse(is.date, leftDay, flowDayShifted),
+                    flow = ifelse(is.date, 0, flow)) -> df
+   } 
+}
+
+
+for (d in waveEndDates) {
+   dd <- as.Date(d)
+   yearNo <- df %>% filter(date == d) %>% pull(year)
+   peakNo <- df %>% filter(date == d) %>% pull(peak_number)
+   rightDay <- df %>% filter(date == d) %>% pull(flowDayShifted)
+   
+   while (rightDay < rightmostDay) {
+      rightDay <- rightDay + 1
+      dd <- dd + 1
+      df %>% mutate(is.date = date == dd,
+                    flowDesc = ifelse(is.date, "extensionRight", flowDesc), 
+                    peak_number = ifelse(is.date, peakNo, peak_number),
+                    year = ifelse(is.date, yearNo, year),
+                    flowDayShifted = ifelse(is.date, rightDay, flowDayShifted),
+                    flow = ifelse(is.date, 0, flow)) -> df
+   } 
+}
+
+df$is.date <- NULL
+df
+```
+
+## Checkpoint
+```{r}
+df_checkpoint_2 <- df
+```
+
+```{r}
+df <- filter(df, !is.na(flowDayShifted))
+df
+```
+
+```{r}
+df %>% group_by(year) %>% summarise(min = min(flowDayShifted), max = max(flowDayShifted))
+```
+```{r}
+df %>% pull(year) %>% unique %>% length
+```
+
+## Checkpoint
+```{r}
+df_checkpoint_3 <- df
+df
+```
+
+
+
+## Eksploratorna analiza
+```{r}
+#svi valovi na jednom grafu
+df %>% ggplot(aes(x = flowDayShifted, y = flow, col = as.factor(peak_number))) + geom_line() +
+  theme(legend.position = "none")
+```
+```{r}
+df %>% ggplot(aes(x = flowDayShifted, y = flow)) + geom_line() + facet_wrap(~year,  ncol=10)
+```
+
+
+## Normalizacija y vrijednosti
+
+```{r}
+# "area under curve"
+AUC <- function(x, y) {
+   sum(diff(x)*rollmean(y,2))
+}
+```
+```{r}
+df %>% group_by(year) %>% summarise(auc = AUC(flowDayShifted, flow)) %>% full_join(df) -> df
+df$flowScaled <- df$flow / df$auc
+
+df %>% ggplot(aes(x = flowDayShifted, y = flowScaled)) + geom_line() + facet_wrap(~year,  ncol=10)
+```
+
+## B-splines
+
+```{r}
+POINTS <- 55
+
+Bspline.basis.4 <- create.bspline.basis(c(0, POINTS), 4)
+Bspline.basis.10 <- create.bspline.basis(c(0, POINTS), 10)
+fourier.basis.4 <- create.fourier.basis(c(0, POINTS), 4)
+fourier.basis.10 <- create.fourier.basis(c(0, POINTS), 10)
+
+plot(Bspline.basis.4)
+plot(Bspline.basis.10)
+plot(fourier.basis.4)
+plot(fourier.basis.10)
+```
+```{r}
+# sanity check
+
+obs <- df %>% filter(year == 1960) %>% pull(flowScaled)
+#obs
+flow.fd.1960.b4 <- smooth.basis(y = obs, fdParobj=Bspline.basis.4)
+flow.fd.1960.b10 <- smooth.basis(y = obs, fdParobj=Bspline.basis.10)
+flow.fd.1960.f4 <- smooth.basis(y = obs, fdParobj=fourier.basis.4)
+flow.fd.1960.f10 <- smooth.basis(y = obs, fdParobj=fourier.basis.10)
+plot(obs)
+lines(flow.fd.1960.b4, col = "red")
+lines(flow.fd.1960.b10, col = "blue")
+lines(flow.fd.1960.f4, col = "purple")
+lines(flow.fd.1960.f10, col = "green")
+```
+```{r}
+# sanity check 2
+
+obs <- df %>% filter(year == 1964) %>% pull(flowScaled)
+flow.fd.1960.b4 <- smooth.basis(y = obs, fdParobj=Bspline.basis.4)
+flow.fd.1960.b10 <- smooth.basis(y = obs, fdParobj=Bspline.basis.10)
+flow.fd.1960.f4 <- smooth.basis(y = obs, fdParobj=fourier.basis.4)
+flow.fd.1960.f10 <- smooth.basis(y = obs, fdParobj=fourier.basis.10)
+plot(obs)
+lines(flow.fd.1960.b4, col = "red")
+lines(flow.fd.1960.b10, col = "blue")
+lines(flow.fd.1960.f4, col = "purple")
+lines(flow.fd.1960.f10, col = "green")
+```
+```{r}
+obsAll <- df %>% pull(flowScaled) %>% matrix(ncol = POINTS, byrow = T)
+
+
+flow.fd <- smooth.basis(y = t(obsAll), fdParobj=Bspline.basis.4)
+plot(flow.fd)
+flow.fd <- smooth.basis(y = t(obsAll), fdParobj=Bspline.basis.10)
+plot(flow.fd)
+obsAll <- df %>% pull(flowScaled) %>% matrix(ncol = POINTS, byrow = T)
+flow.fd <- smooth.basis(y = t(obsAll), fdParobj=fourier.basis.4)
+plot(flow.fd)
+obsAll <- df %>% pull(flowScaled) %>% matrix(ncol = POINTS, byrow = T)
+flow.fd <- smooth.basis(y = t(obsAll), fdParobj=fourier.basis.10)
+plot(flow.fd)
+```
+
+## K-means clustering
+
+```{r}
+wavesCoef.bspline <- as_tibble(t(coef(flow.fd)))
+wavesCoef.fourier <- as_tibble(t(coef(flow.fd)))
+
+k3 <- kmeans(wavesCoef.fourier, centers = 3, nstart = 25)
+clustersFourier <- k3$cluster
+
+k3 <- kmeans(wavesCoef.bspline, centers = 3, nstart = 25)
+clustersBspline <- k3$cluster
+```
+
+```{r}
+df %>% filter(flowDesc == "peak") %>% dplyr::select(peak_number) %>% 
+   mutate(clusterFourier = as.factor(clustersFourier),
+          clusterBspline = as.factor(clustersBspline)) %>% full_join(df) -> df
+```
+```{r}
+df %>% ggplot(aes(x = flowDayShifted, y = flowScaled, col = clusterFourier)) + geom_line() + facet_wrap(~year,  ncol=10)
+df %>% ggplot(aes(x = flowDayShifted, y = flow, col = clusterBspline)) + geom_line() + facet_wrap(~year,  ncol=10)
+```
+
+## Komentari
+- volumen
+- two-stage clustering approaches
+- "The threshold for the peak discharge was chosen iteratively to fulfill a target condition of four events per year on average"
+- "Flood events that ended in a secondary peak were removed
+automatically from the data set to ensure that events triggered by two independent convective precipitation events were not considered as one event"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

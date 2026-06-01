@@ -1,0 +1,254 @@
+```{r}
+library(FlowScreen)
+```
+
+```{r}
+data <- read.csv('Zagreb_dnevniQ-1960-2019.csv', header=T)
+data <- data.frame(Date=(as.Date(data$Date,"%d/%m/%Y")),Flow=data$Flow..m3.s.)
+
+data$Year <- as.numeric(substr(data$Date,1,4))
+
+Qmax <- tapply(data$Flow, data$Year, max) #apply 'max' to each year
+Qmax <- data.frame(Year=names(Qmax), Flow=Qmax) #converting 'Qmax' to data frame
+Qmax$Year <- as.numeric(Qmax$Year)
+Qmax$Flow <- as.numeric(Qmax$Flow)
+```
+
+```{r}
+row_num <- function(data, peak){Index <- which(apply(data, 1, function(r) all(r==peak)))
+      Proba <- data.frame(Index)
+      return(c(Proba,Index))}
+#greška je bila jer je u apply funkciji umjesto all(r=peak) pisalo any(r=peak) koji kaže da je uvjet samo dio zadanog dataframe-a (Qmax_df), a s "all" kažemo da cijeli dataframe (Qmax_df) mora biti jednak zapisu u "data" kako bi se to označilo kao "match". Zato smo dodali pomoćnu varijablu (data_pom).
+data_pom<-data.frame(data$Year,data$Flow)
+Peak_temp<-row_num(data_pom,Qmax[1,])
+Qmax_AM<-data.frame(Qmax[1,],Peak_temp[1])
+for(i in 2:nrow(Qmax)){Peak_temp <- row_num(data_pom,Qmax[i,])
+Qmax_AM<-rbind(Qmax_AM,data.frame(Qmax[i,],Peak_temp[1]))}
+
+
+#Damir: mislim da ovaj kod trazi dan kada je najvisi flow
+#   na nacin da zapamti identifikator retka
+
+Qmaxbkp <- Qmax_AM  # dugo se vrti, pa za backup
+```
+
+```{r}
+
+#Damir: pretpostavka - trazimo prvi redak iznad maksimalnog flowa kada
+# je flow pao ispod 500
+
+for(i in 1:nrow(Qmax_AM)){
+  for(j in seq(from = Qmax_AM[i,3], to = 1, by = -1)){
+    if(data[j,2] <= 500){
+      Qmax_AM[i,4]<-data.frame(go_up_rnum = j)
+      break
+    } 
+  }
+}
+```
+
+```{r}
+for(i in 1:nrow(Qmax_AM)){
+  for(j in seq(from = Qmax_AM[i,3], to = nrow(data), by = 1)){
+    if(data[j,2] <= 500){
+      Qmax_AM[i,5]<-data.frame(go_down_rnum = j)
+      break
+    } 
+  }
+}
+```
+
+```{r}
+Qmax_AM$go_up_rnum[is.na(Qmax_AM$go_up_rnum)] <- 1
+Qmax_AM$go_down_rnum[is.na(Qmax_AM$go_down_rnum)] <- nrow(data)
+```
+
+```{r}
+#podaci iz Peak1
+  #stvaranje data framea za svaki Peak zasebno uz imenovanje varijabli
+  #pomoću stream_data dobije se pripadni format ćelije (datum/protok) prema napisanom izrazu
+  #stvaranje stupaca go_up/go_down koji se kasnije koriste kao varijabla za svaki val koliko će u odnosu na peak val trajati prema gore/odnosno prema dolje (broj dana prije i poslije peaka što čini ukupno trajanje jednog vodnog vala)
+stream_data = data.frame(
+       datetime=data$Date,
+       streamflow=data$Flow)
+Peaks <- data.frame(
+       peak_number = 1:nrow(Qmax_AM),
+       peak_max = stream_data[Qmax_AM[,3],"datetime"],
+       peak_heigth = stream_data[Qmax_AM[,3],"streamflow"],
+       peak_start = stream_data[Qmax_AM[,4],"datetime"],
+       peak_end = stream_data[Qmax_AM[,5],"datetime"],
+       go_up = Qmax_AM[,3]-Qmax_AM[,4],
+       go_down = Qmax_AM[,5]-Qmax_AM[,3]
+)
+```
+
+```{r}
+#stvaranje pomoćnih tablica za svaki oblik vodnog vala
+  #stvaranje funkcije flow_f koja dopušta mijenjanje varijabli Max1,peak,go_up,go down koja će kasnije biti ubačena u for petlju kojom će se automatizirati izračun pomoćne tablice za sve zadane peakove (omogućava mijenjanja broja peakova bez potrebe za mijenjanjem izgleda formula)
+  #varijabla a je stvorena kako bi se dobio index retka u kojem se nalazi peak koji se kasnije koristi kako bi se odrezao svaki val prema točkama u kojima započinje i završava val
+flow_f <- function(Max1,peak,go_up,go_down){
+a<-which(apply(Max1, 1, function(r) any(r == peak)))
+
+Val1 <- Max1[(a-go_up):(a+go_down),]
+
+Date=Val1$Date
+Flow=Val1$Flow
+Time=0:(nrow(Val1)-1)
+
+Val1 <- data.frame(Date, Flow, Time)
+return(Val1)
+}
+
+#za svaki i od 1 do broja redaka u X1 (broj redaka pomoćne tablice) napravi varijablu Tab koja je prethodno opisana funkcija u kojoj je umjesto varijabli zadane konkretne vrijednosti (koje se mijenjaju pomoću i)
+for(i in 1:nrow(Peaks)){
+Tab <-flow_f(data,Peaks[i,2], Peaks[i,6], Peaks[i,7])
+assign( paste("Val", i, sep = "") , as.data.frame(Tab[c(1:3)]))}
+```
+
+```{r}
+library(ggplot2)
+library(scales)
+plotlist=list()
+n=100
+#za i od 1 do 60 gdje je 60 ukupan broj valova koji se generiraju 
+for(i in 1:60){
+    file_name <- paste("Val_",i,sep="")
+    Valovi <- ggplot(get(paste("Val",i,sep="")),aes(x=as.Date(Date, format="%d/%m/%Y"), y=Flow)) +
+                    labs(x = "Date", y = bquote("Flow"~ (m^3/s))) +
+                    ggtitle(file_name) +
+                    theme(plot.title = element_text(hjust = 0.5)) +
+                    geom_line() +
+                    scale_x_date(labels = date_format("%d/%m/%Y"), date_breaks = "1 day", expand=c(0,0) ) +
+                    theme(axis.text.x=element_text(angle=90, vjust = 0.5)) +
+                    scale_y_continuous(limits = c(0,3100), breaks = seq(0,3000,500), minor_breaks = seq(0,3000,100))
+    ggsave(paste(file_name,".png",sep=""), Valovi)
+    plotlist[[i]]=Valovi
+}
+```
+
+Pomak svih peakova valova na istu x vrijednost (centriranje prema najdesnijem peaku)
+```{r}
+max_x_peak <- which(apply(Val1, 1, function(r) any(r == max(Val1$Flow))))
+for(i in 2:60){
+  pom_tab <- data.frame(get(paste("Val",i,sep="")))
+  pom_max_x_peak <- which(apply(pom_tab, 1, function(r) any(r == max(pom_tab$Flow))))
+  if(pom_max_x_peak > max_x_peak){
+    max_x_peak <- pom_max_x_peak
+  }
+}
+max_x_peak<-(max_x_peak-1)
+
+for(i in 1:60){
+  pom_tab <- data.frame(get(paste("Val",i,sep="")))
+  pom_tab$Duration <- 0:(nrow(pom_tab)-1)
+  pom_max_x_peak <- which(apply(pom_tab, 1, function(r) any(r == max(pom_tab$Flow))))
+  shift_duration <- (max_x_peak-(pom_max_x_peak-1))
+  pom_tab$Duration <- pom_tab$Duration + shift_duration
+  assign(paste("Val_centrirano",i,sep=""),pom_tab)
+}
+
+```
+
+```{r}
+#Crtanje svih valova na jednom grafu centrirano
+
+Table_for_plot<-data.frame(
+  Val="Val_centrirano1",
+  Duration=Val_centrirano1$Duration,
+  Flow=Val_centrirano1$Flow
+  )
+
+for(i in 2:60){
+  temp <- get((paste("Val_centrirano",i,sep="")))
+  Table_for_plot <- rbind(Table_for_plot,data.frame(Val=paste("Val_centrirano",i,sep=""),Duration=temp$Duration,Flow=temp$Flow))  
+}
+library(writexl)
+write_xlsx(Table_for_plot,"Valovi_centrirano.xlsx")
+
+Table_for_plot$Threshold <- 500
+library(ggplot2)
+Slika <- ggplot(Table_for_plot, aes(x=Duration, y=Flow),col=1:60) + 
+                      geom_line(aes(colour=Val, group=Val), alpha=0.3) +
+                      theme(legend.position = "none") +
+                      labs(x = "Duration (days)", y = bquote("Flow"~ (m^3/s)))+
+                      scale_x_continuous(limits = c(0,40), breaks = seq(0,40,5), minor_breaks = seq(0,40,1) ) +
+                      scale_y_continuous(limits = c(0,3100), breaks = seq(0,3100,500), minor_breaks = seq(0,3000,100))
+                      #geom_line(aes(x=Duration, y=Threshold),linetype = "dashed",color="red")
+ggsave("Hidrogrami-centrirano.png", Slika)
+```
+
+
+
+
+
+
+Nastavak (po potrebi):
+
+
+```{r}
+#Zapis svih valova relativnom mjerilu Qi/Qmax i Ti/Tmax
+Pokusaj1_F <- function(Table_input){
+  Max_row_input <- Table_input[nrow(Table_input),3]
+  Max_flow_input <- max(Table_input[,2])
+  Table_input$RelativeTime <- Table_input$Time/Max_row_input
+  Table_input$RelativeDischarge <- Table_input$Flow/Max_flow_input
+  return(Table_input)
+}
+
+Pokusaj1<-Pokusaj1_F(Val1)
+Valovi_relativno <-data.frame(
+  Val="Val1",
+  RelativeTime=Pokusaj1$RelativeTime,
+  RelativeDischarge=Pokusaj1$RelativeDischarge
+)
+
+for(i in 2:60){
+  temp<-Pokusaj1_F(get(paste("Val",i,sep="")))
+  assign(paste("ValRelative",i,sep=""),temp)
+  
+  Valovi_relativno <- rbind(Valovi_relativno,data.frame(Val=paste("Val",i,sep=""),RelativeTime=temp$RelativeTime,RelativeDischarge=temp$RelativeDischarge))  
+}
+```
+
+```{r}
+Slika <- ggplot(ValRelative10, aes(x=RelativeTime, y=RelativeDischarge),col=1:92) + 
+                      geom_line()+
+                      theme(legend.position = "none")
+  
+ggsave("Slika.png", Slika)
+```
+
+
+```{r}
+#Spajanje svih valova u jedan excel
+
+Proba1 <- function(Val){
+  Proba2 <- data.frame(Date=Val[,1])
+                     
+return(Proba2)
+}
+Final <- Proba1(Val1)
+
+for(i in 2:60){
+  Proba4 <- Proba1(get(paste("Val",i,sep="")))
+  Final <- rbind(Final,Proba4)
+}
+
+Proba1 <- function(Val){
+  Proba2 <- data.frame(Flow=Val[,2])
+                     
+return(Proba2)
+}
+Final2 <- Proba1(Val1)
+
+for(i in 2:60){
+  Proba4 <- Proba1(get(paste("Val",i,sep="")))
+  Final2 <- rbind(Final2,Proba4)
+}
+
+Valovi_spojeno <- data.frame(Final,Final2)
+library("writexl")
+
+write_xlsx(Valovi_spojeno,"G:\\A-POSAO\\DOKTORSKI\\Konferencije\\IWDS_2021\\Valovi_spojeno.xlsx")
+
+```

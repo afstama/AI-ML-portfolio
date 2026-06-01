@@ -1,0 +1,641 @@
+---
+title: "clustersStandardized"
+author: "Ana Francesca Stama"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readr)
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(zoo)
+library(fda)
+library(reshape2)
+library(fpc)
+```
+
+
+## Učitavanje podataka
+```{r, results='hide'}
+INPUT_FILE <- "Zagreb_dnevniQ-1960-2019.csv"
+INPUT_FILE_BASEFLOW <- "Zagreb_baseflow.csv"
+df <- read_csv(INPUT_FILE)
+df_base <- read_csv(INPUT_FILE_BASEFLOW)
+```
+
+
+## Uređivanje okvira podataka - preimenovanje stupaca, pretvaranje datuma u Date format
+```{r}
+names(df) <- c("date", "flow")
+df$date <- dmy(df$date)
+df$h_year <- year(df$date)
+
+# postavljanje hidrološke godine
+df[month(df$date) >= 10, ]$h_year <- df[month(df$date) >= 10, ]$h_year + 1
+
+# micanje redaka kojima je baseflow=NA i dodavanje stupca flowdiff=flow-baseflow
+df$baseflow <- df_base$baseflow
+df <- filter(df, !is.na(baseflow))
+df$flowdiff <- df$flow - df$baseflow
+
+df %>% ggplot(aes(x = date, y = flowdiff)) + geom_line()
+```
+
+
+## Traženje vrhova i dodavanje opisa "peak" u stupac flowDesc
+```{r, results='hide'}
+df %>% group_by(h_year) %>% summarise(flow = max(flow), flowDesc = "peak") %>% mutate(flowDay = 0, peak_number = 1:n()) -> dfMax
+df %>% full_join(dfMax) -> df
+```
+
+
+## Traženje kraja i početka vala i postavljanje lijevog i desnog segmenta u stupac flowDesc
+```{r, results='hide'}
+peakDates <- filter(df, !is.na(flowDesc)) %>% pull(date) %>% as.character
+peak_num <- 0
+
+for (peak in peakDates) {
+  peak <- as.Date(peak)
+  peak_num <- peak_num + 1
+
+  # waveStart, leftSegment
+  # traženje najbližeg datuma prije trenutnog vrha gdje je flowdiff=0
+  
+  df %>% filter(df$date < peak & round(flowdiff, 0) == 0) %>% pull(date) -> lowdiff_dates
+  lowdiffIndex <- which(abs(lowdiff_dates-peak) == min(abs(lowdiff_dates-peak)))
+  
+  # ako se valovi preklapaju, spajaju se i traži se prvi dalji datum u prošlosti gdje je flowdif=0
+  
+  if (!is.na(df[df$date == lowdiff_dates[lowdiffIndex], ]$flowDesc)) {
+    print(lowdiff_dates[lowdiffIndex])
+    df %>% filter(df$date < peak & round(flowdiff, 0) == 0 & df$date != lowdiff_dates[lowdiffIndex]) %>% pull(date) -> lowdiff_dates
+    lowdiffIndex <- which(abs(lowdiff_dates-peak) == min(abs(lowdiff_dates-peak)))
+    peak_numb <- peak_num - 1
+    print(lowdiff_dates[lowdiffIndex])
+  }
+  
+  # retku s nađenim datumom postavlja se stupac _flowDesc_ na vrijednost "waveStart", a retcima čiji su datumi veći od njega ali manji od datuma trenutnog vrha stupac _flowDesc_ postavlja se na vrijednost "leftSegment"
+  
+  waveStart <- lowdiff_dates[lowdiffIndex]
+  
+  df %>% mutate(is.date = date < peak & date >= waveStart,
+                flowDesc = ifelse(is.date, "leftSegment", flowDesc),
+                h_year = ifelse(is.date, df[df$date == peak, ]$h_year, h_year),
+                peak_number = ifelse(is.date, peak_num, peak_number),
+                flowDay = ifelse(is.date, as.numeric(date-peak), flowDay)) -> df
+  df[df$date == waveStart, ]$flowDesc <- "waveStart"
+  
+  
+  # waveEnd, rightSegment
+  # ponavlja se sličan postupak, samo s krajem vala i njegovim desnim segmentima
+  
+  df %>% filter(df$date > peak & round(flowdiff, 0) == 0) %>% pull(date) -> lowdiff_dates
+  lowdiffIndex <- which(abs(lowdiff_dates-peak) == min(abs(lowdiff_dates-peak)))
+  
+  waveEnd <- lowdiff_dates[lowdiffIndex]
+  
+  df %>% mutate(is.date = date > peak & date <= waveEnd,
+                flowDesc = ifelse(is.date, "rightSegment", flowDesc),
+                h_year = ifelse(is.date, df[df$date == peak, ]$h_year, h_year),
+                peak_number = ifelse(is.date, peak_num, peak_number),
+                flowDay = ifelse(is.date, as.numeric(date-peak), flowDay)) -> df
+  df[df$date == waveEnd, ]$flowDesc <- "waveEnd"
+}
+df$is.date <- NULL
+```
+
+
+## Micanje redaka bez valova
+```{r}
+df <- filter(df, !is.na(flowDesc))
+
+df_checkpoint1 <- df
+df <- df_checkpoint1
+```
+
+
+## Dodavanje parametara
+- I1: Qmax - maksimalan vršni protok
+- I2: volume u km3 - površina ispod krivulje
+- I3: duration u danima
++ I4: razika između datuma vrha i početka odgovarajuće hidrološke godine
+- I5: recessionRate - Maximum flow difference between days on the falling limb(s) of flood event [Whipple]
+- I6: lokacija vršnog protoka / trajanje
+- I7: risingRate - Maximum flow difference between days on the rising limb(s) of flood event [Whipple]
+
+```{r, results='hide'}
+# area under curve
+AUC <- function(x, y) {
+   sum((diff(x)*24*60*60)*rollmean(y,2))/10**9
+}
+
+df %>% group_by(peak_number) %>% summarise(I1 = max(flow),
+                                           I2 = AUC(flowDay, flow),
+                                           I3 = as.numeric(max(date) - min(date)),
+                                           I6 = -min(flowDay) / I3) -> df_info
+
+
+df %>% group_by(peak_number) %>%  summarise(I7 = max(diff(flow)), 
+                                            I5 = -min(diff(flow))) %>% full_join(df_info) -> df_info
+
+df %>% filter(flowDesc == "peak") %>% 
+  summarise(peak_number, I4 = as.numeric(date - dmy(paste('01-10-', min(df$h_year)+peak_number-2)))) %>% 
+  full_join(df_info) -> df_info
+
+df %>% filter(flowDesc == "peak") %>% summarise(peak_number, peak_date = date) %>% full_join(df_info) -> df_info
+
+```
+
+
+### Boxplot za svaki indiktator + svi boxplotovi na jednom grafu
+```{r}
+df_info <- df_info[, c("peak_number", "peak_date", "I1", "I2", "I3", "I4", "I5", "I6", "I7")]
+df_info %>% mutate_at(c("I1", "I2", "I3", "I4", "I5", "I6", "I7"), ~(scale(.) %>% as.vector)) -> df_info
+summary(df_info)
+
+boxplot(df_info$I1, main="Qmax")
+boxplot(df_info$I2, main="volumen [m3]")
+boxplot(df_info$I3, main="trajanje")
+boxplot(df_info$I4, main="težište dan")
+boxplot(df_info$I5, main="stopa recesije")
+boxplot(df_info$I6, main="lokacija Qmax")
+boxplot(df_info$I7, main="stopa rasta")
+
+df_mod <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7'))
+ggplot(df_mod) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+```
+
+### Rangiranje indikatora po veličini - padajućim redoslijedoma
+```{r}
+df_order <- data.frame(matrix(nrow = length(df_info$peak_number), ncol = 0))
+
+df_order$I1 <- year(df_info[order(df_info$I1, decreasing = TRUE), ]$peak_date)
+df_order$I2 <- year(df_info[order(df_info$I1, decreasing = TRUE), ]$peak_date)
+df_order$I3 <- year(df_info[order(df_info$I1, decreasing = TRUE), ]$peak_date)
+df_order$I4 <- year(df_info[order(df_info$I1, decreasing = TRUE), ]$peak_date)
+df_order$I5 <- year(df_info[order(df_info$I1, decreasing = TRUE), ]$peak_date)
+df_order$I6 <- year(df_info[order(df_info$I1, decreasing = TRUE), ]$peak_date)
+df_order$I7 <- year(df_info[order(df_info$I1, decreasing = TRUE), ]$peak_date)
+
+head(df_order, 10)
+```
+
+
+## Clustering
+```{r, results = 'hide'}
+df_checkpoint2 <- df_info
+df_info <- df_checkpoint2
+
+df_info %>% summarise(I1, I2, I3, I4, I5, I6, I7) %>% kmeans(centers = 3, nstart = 25) -> kAll
+clusterkAll <- kAll$cluster
+
+df_info %>% summarise(I1, I2, I3) %>% kmeans(centers = 3, nstart = 25) -> k123
+clusterk123 <- k123$cluster
+
+df_info %>% summarise(I1, I2) %>% kmeans(centers = 3, nstart = 25) -> k12
+clusterk12 <- k12$cluster
+
+df_info %>% summarise(I1, I3) %>% kmeans(centers = 3, nstart = 25) -> k13
+clusterk13 <- k13$cluster
+
+df_info %>% summarise(I1, I4) %>% kmeans(centers = 3, nstart = 25) -> k14
+clusterk14 <- k14$cluster
+
+df_info %>% summarise(I2, I4) %>% kmeans(centers = 3, nstart = 25) -> k24
+clusterk24 <- k24$cluster
+
+df_info %>% summarise(I1, I2, I3, I4) %>% kmeans(centers = 3, nstart = 25) -> k1234
+clusterk1234 <- k1234$cluster
+
+df_info %>% summarise(I5, I6, I7) %>% kmeans(centers = 3, nstart = 25) -> k567
+clusterk567 <- k567$cluster
+
+df_info %>% summarise(I5, I7) %>% kmeans(centers = 3, nstart = 25) -> k57
+clusterk57 <- k57$cluster
+
+df %>% filter(flowDesc == "peak") %>% dplyr::select(peak_number) %>% 
+  mutate(clusterkAll = as.factor(clusterkAll),
+         clusterk123 = as.factor(clusterk123),
+         clusterk12 = as.factor(clusterk12),
+         clusterk13 = as.factor(clusterk13),
+         clusterk14 = as.factor(clusterk14),
+         clusterk24 = as.factor(clusterk24),
+         clusterk1234 = as.factor(clusterk1234),
+         clusterk567 = as.factor(clusterk567),
+         clusterk57 = as.factor(clusterk57)) %>% full_join(df) -> df
+
+df %>% filter(flowDesc == "peak") %>% summarise(peak_number, legend = paste(year(date), month.abb[month(date)],sep='-')) %>% full_join(df) -> df
+
+```
+### Clusterirani valovi
+```{r, echo=FALSE}
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterkAll)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterk123)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterk12)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterk13)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterk14)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterk24)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterk1234)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterk567)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+#df %>% ggplot(aes(x = flowDay, y = flowdiff, col = clusterk57)) + geom_line() + facet_wrap(~h_year,  ncol=10)
+```
+
+### kAll
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(legend))) + geom_line() + facet_wrap(~clusterkAll)
+
+df_mod <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7'))
+ggplot(df_mod) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+kAll.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                 allData_I1 = I1, 
+                                                                 allData_I2 = I2, 
+                                                                 allData_I3 = I3, 
+                                                                 allData_I4 = I4, 
+                                                                 allData_I5 = I5, 
+                                                                 allData_I6 = I6,
+                                                                 allData_I7 = I7)
+kAll.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                 cluster1_I1 = I1, 
+                                                                 cluster1_I2 = I2, 
+                                                                 cluster1_I3 = I3, 
+                                                                 cluster1_I4 = I4, 
+                                                                 cluster1_I5 = I5, 
+                                                                 cluster1_I6 = I6,
+                                                                 cluster1_I7 = I7)
+kAll.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                 cluster2_I1 = I1, 
+                                                                 cluster2_I2 = I2, 
+                                                                 cluster2_I3 = I3, 
+                                                                 cluster2_I4 = I4, 
+                                                                 cluster2_I5 = I5, 
+                                                                 cluster2_I6 = I6,
+                                                                 cluster2_I7 = I7)
+kAll.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                 cluster3_I1 = I1, 
+                                                                 cluster3_I2 = I2, 
+                                                                 cluster3_I3 = I3, 
+                                                                 cluster3_I4 = I4, 
+                                                                 cluster3_I5 = I5, 
+                                                                 cluster3_I6 = I6,
+                                                                 cluster3_I7 = I7)
+
+paste(c("Cluster1: ", kAll.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", kAll.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", kAll.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(kAll.cluster0, "allData_I1"), dplyr::select(kAll.cluster1, "cluster1_I1"), dplyr::select(kAll.cluster2, "cluster2_I1"), dplyr::select(kAll.cluster3, "cluster3_I1")))
+boxplot(dplyr::bind_rows(dplyr::select(kAll.cluster0, "allData_I2"), dplyr::select(kAll.cluster1, "cluster1_I2"), dplyr::select(kAll.cluster2, "cluster2_I2"), dplyr::select(kAll.cluster3, "cluster3_I2")))
+boxplot(dplyr::bind_rows(dplyr::select(kAll.cluster0, "allData_I3"), dplyr::select(kAll.cluster1, "cluster1_I3"), dplyr::select(kAll.cluster2, "cluster2_I3"), dplyr::select(kAll.cluster3, "cluster3_I3")))
+boxplot(dplyr::bind_rows(dplyr::select(kAll.cluster0, "allData_I4"), dplyr::select(kAll.cluster1, "cluster1_I4"), dplyr::select(kAll.cluster2, "cluster2_I4"), dplyr::select(kAll.cluster3, "cluster3_I4")))
+boxplot(dplyr::bind_rows(dplyr::select(kAll.cluster0, "allData_I5"), dplyr::select(kAll.cluster1, "cluster1_I5"), dplyr::select(kAll.cluster2, "cluster2_I5"), dplyr::select(kAll.cluster3, "cluster3_I5")))
+boxplot(dplyr::bind_rows(dplyr::select(kAll.cluster0, "allData_I6"), dplyr::select(kAll.cluster1, "cluster1_I6"), dplyr::select(kAll.cluster2, "cluster2_I6"), dplyr::select(kAll.cluster3, "cluster3_I6")))
+boxplot(dplyr::bind_rows(dplyr::select(kAll.cluster0, "allData_I7"), dplyr::select(kAll.cluster1, "cluster1_I7"), dplyr::select(kAll.cluster2, "cluster2_I7"), dplyr::select(kAll.cluster3, "cluster3_I7")))
+```
+
+
+```{r}
+scale(df_info[ ,c('I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> kAll.cboot
+paste(c("Stability: ", kAll.cboot$bootmean), collapse=" ")
+```
+
+
+### k123
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(h_year))) + geom_line() + facet_wrap(~clusterk123) + labs(color = 'h_year')
+
+df_mod123 <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I1', 'I2', 'I3'))
+ggplot(df_mod123) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+k123.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                       allData_I1 = I1, 
+                                       allData_I2 = I2, 
+                                       allData_I3 = I3)
+k123.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                 cluster1_I1 = I1, 
+                                                                 cluster1_I2 = I2, 
+                                                                 cluster1_I3 = I3)
+k123.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                 cluster2_I1 = I1, 
+                                                                 cluster2_I2 = I2, 
+                                                                 cluster2_I3 = I3)
+k123.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                 cluster3_I1 = I1, 
+                                                                 cluster3_I2 = I2, 
+                                                                 cluster3_I3 = I3)
+
+paste(c("Cluster1: ", k123.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", k123.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", k123.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(k123.cluster0, "allData_I1"), dplyr::select(k123.cluster1, "cluster1_I1"), dplyr::select(k123.cluster2, "cluster2_I1"), dplyr::select(k123.cluster3, "cluster3_I1")))
+boxplot(dplyr::bind_rows(dplyr::select(k123.cluster0, "allData_I2"), dplyr::select(k123.cluster1, "cluster1_I2"), dplyr::select(k123.cluster2, "cluster2_I2"), dplyr::select(k123.cluster3, "cluster3_I2")))
+boxplot(dplyr::bind_rows(dplyr::select(k123.cluster0, "allData_I3"), dplyr::select(k123.cluster1, "cluster1_I3"), dplyr::select(k123.cluster2, "cluster2_I3"), dplyr::select(k123.cluster3, "cluster3_I3")))
+```
+
+
+```{r}
+scale(df_info[ ,c('I1', 'I2', 'I3')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> k123.cboot
+paste(c("Stability: ", k123.cboot$bootmean), collapse=" ")
+```
+
+### k12
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(h_year))) + geom_line() + facet_wrap(~clusterk12) + labs(color = 'h_year')
+
+df_mod12 <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I1', 'I2'))
+ggplot(df_mod12) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+k12.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                      allData_I1 = I1, 
+                                      allData_I2 = I2)
+k12.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster1_I1 = I1, 
+                                                                cluster1_I2 = I2)
+k12.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster2_I1 = I1, 
+                                                                cluster2_I2 = I2)
+k12.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster3_I1 = I1, 
+                                                                cluster3_I2 = I2)
+
+paste(c("Cluster1: ", k12.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", k12.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", k12.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(k12.cluster0, "allData_I1"), dplyr::select(k12.cluster1, "cluster1_I1"), dplyr::select(k12.cluster2, "cluster2_I1"), dplyr::select(k12.cluster3, "cluster3_I1")))
+boxplot(dplyr::bind_rows(dplyr::select(k12.cluster0, "allData_I2"), dplyr::select(k12.cluster1, "cluster1_I2"), dplyr::select(k12.cluster2, "cluster2_I2"), dplyr::select(k12.cluster3, "cluster3_I2")))
+```
+
+
+```{r}
+scale(df_info[ ,c('I1', 'I2')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> k12.cboot
+paste(c("Stability: ", k12.cboot$bootmean), collapse=" ")
+```
+
+### k13
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(h_year))) + geom_line() + facet_wrap(~clusterk13) + labs(color = 'h_year')
+
+df_mod13 <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I1', 'I3'))
+ggplot(df_mod13) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+k13.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                      allData_I1 = I1, 
+                                      allData_I3 = I3)
+k13.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster1_I1 = I1, 
+                                                                cluster1_I3 = I3)
+k13.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster2_I1 = I1, 
+                                                                cluster2_I3 = I3)
+k13.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster3_I1 = I1, 
+                                                                cluster3_I3 = I3)
+
+paste(c("Cluster1: ", k13.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", k13.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", k13.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(k13.cluster0, "allData_I1"), dplyr::select(k13.cluster1, "cluster1_I1"), dplyr::select(k13.cluster2, "cluster2_I1"), dplyr::select(k13.cluster3, "cluster3_I1")))
+boxplot(dplyr::bind_rows(dplyr::select(k13.cluster0, "allData_I3"), dplyr::select(k13.cluster1, "cluster1_I3"), dplyr::select(k13.cluster2, "cluster2_I3"), dplyr::select(k13.cluster3, "cluster3_I3")))
+```
+
+
+```{r}
+scale(df_info[ ,c('I1', 'I3')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> k13.cboot
+paste(c("Stability: ", k13.cboot$bootmean), collapse=" ")
+```
+
+### k14
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(h_year))) + geom_line() + facet_wrap(~clusterk14) + labs(color = 'h_year')
+
+df_mod14 <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I1', 'I4'))
+ggplot(df_mod14) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+k14.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                      allData_I1 = I1, 
+                                      allData_I4 = I4)
+k14.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster1_I1 = I1, 
+                                                                cluster1_I4 = I4)
+k14.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster2_I1 = I1, 
+                                                                cluster2_I4 = I4)
+k14.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster3_I1 = I1, 
+                                                                cluster3_I4 = I4)
+
+paste(c("Cluster1: ", k14.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", k14.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", k14.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(k14.cluster0, "allData_I1"), dplyr::select(k14.cluster1, "cluster1_I1"), dplyr::select(k14.cluster2, "cluster2_I1"), dplyr::select(k14.cluster3, "cluster3_I1")))
+boxplot(dplyr::bind_rows(dplyr::select(k14.cluster0, "allData_I4"), dplyr::select(k14.cluster1, "cluster1_I4"), dplyr::select(k14.cluster2, "cluster2_I4"), dplyr::select(k14.cluster3, "cluster3_I4")))
+```
+
+
+```{r}
+scale(df_info[ ,c('I1', 'I4')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> k14.cboot
+paste(c("Stability: ", k14.cboot$bootmean), collapse=" ")
+```
+
+### k24
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(h_year))) + geom_line() + facet_wrap(~clusterk24) + labs(color = 'h_year')
+
+df_mod24 <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I2', 'I4'))
+ggplot(df_mod24) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+k24.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                      allData_I2 = I2, 
+                                      allData_I4 = I4)
+k24.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster1_I2 = I2, 
+                                                                cluster1_I4 = I4)
+k24.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster2_I2 = I2, 
+                                                                cluster2_I4 = I4)
+k24.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                cluster3_I2 = I2, 
+                                                                cluster3_I4 = I4)
+
+paste(c("Cluster1: ", k24.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", k24.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", k24.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(k24.cluster0, "allData_I2"), dplyr::select(k24.cluster1, "cluster1_I2"), dplyr::select(k24.cluster2, "cluster2_I2"), dplyr::select(k24.cluster3, "cluster3_I2")))
+boxplot(dplyr::bind_rows(dplyr::select(k14.cluster0, "allData_I4"), dplyr::select(k14.cluster1, "cluster1_I4"), dplyr::select(k14.cluster2, "cluster2_I4"), dplyr::select(k14.cluster3, "cluster3_I4")))
+```
+
+
+```{r}
+scale(df_info[ ,c('I2', 'I4')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> k24.cboot
+paste(c("Stability: ", k24.cboot$bootmean), collapse=" ")
+```
+
+### k1234
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(h_year))) + geom_line() + facet_wrap(~clusterk1234) + labs(color = 'h_year')
+
+df_mod1234 <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I1', 'I2', 'I3', 'I4'))
+ggplot(df_mod1234) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+k1234.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                        allData_I1 = I1,
+                                        allData_I2 = I2, 
+                                        allData_I3 = I3, 
+                                        allData_I4 = I4)
+k1234.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                  cluster1_I1 = I1, 
+                                                                  cluster1_I2 = I2, 
+                                                                  cluster1_I3 = I3, 
+                                                                  cluster1_I4 = I4)
+k1234.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                  cluster2_I1 = I1, 
+                                                                  cluster2_I2 = I2, 
+                                                                  cluster2_I3 = I3, 
+                                                                  cluster2_I4 = I4)
+k1234.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1,
+                                                                  cluster3_I1 = I1, 
+                                                                  cluster3_I2 = I2, 
+                                                                  cluster3_I3 = I3, 
+                                                                  cluster3_I4 = I4)
+
+paste(c("Cluster1: ", k1234.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", k1234.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", k1234.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(k1234.cluster0, "allData_I1"), dplyr::select(k1234.cluster1, "cluster1_I1"), dplyr::select(k1234.cluster2, "cluster2_I1"), dplyr::select(k1234.cluster3, "cluster3_I1")))
+boxplot(dplyr::bind_rows(dplyr::select(k1234.cluster0, "allData_I2"), dplyr::select(k1234.cluster1, "cluster1_I2"), dplyr::select(k1234.cluster2, "cluster2_I2"), dplyr::select(k1234.cluster3, "cluster3_I2")))
+boxplot(dplyr::bind_rows(dplyr::select(k1234.cluster0, "allData_I3"), dplyr::select(k1234.cluster1, "cluster1_I3"), dplyr::select(k1234.cluster2, "cluster2_I3"), dplyr::select(k1234.cluster3, "cluster3_I3")))
+boxplot(dplyr::bind_rows(dplyr::select(k1234.cluster0, "allData_I4"), dplyr::select(k1234.cluster1, "cluster1_I4"), dplyr::select(k1234.cluster2, "cluster2_I4"), dplyr::select(k1234.cluster3, "cluster3_I4")))
+```
+
+```{r}
+scale(df_info[ ,c('I1', 'I2', 'I3', 'I4')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> k1234.cboot
+paste(c("Stability: ", k1234.cboot$bootmean), collapse=" ")
+```
+
+### k567
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(h_year))) + geom_line() + facet_wrap(~clusterk567) + labs(color = 'h_year')
+
+df_mod567 <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I5', 'I6', 'I7'))
+ggplot(df_mod567) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+k567.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                       allData_I5 = I5, 
+                                       allData_I6 = I6,
+                                       allData_I7 = I7)
+k567.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1, 
+                                                                 cluster1_I5 = I5, 
+                                                                 cluster1_I6 = I6,
+                                                                 cluster1_I7 = I7)
+k567.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1, 
+                                                                 cluster2_I5 = I5, 
+                                                                 cluster2_I6 = I6,
+                                                                 cluster2_I7 = I7)
+k567.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1, 
+                                                                 cluster3_I5 = I5, 
+                                                                 cluster3_I6 = I6,
+                                                                 cluster3_I7 = I7)
+
+paste(c("Cluster1: ", k567.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", k567.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", k567.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(k567.cluster0, "allData_I5"), dplyr::select(k567.cluster1, "cluster1_I5"), dplyr::select(k567.cluster2, "cluster2_I5"), dplyr::select(k567.cluster3, "cluster3_I5")))
+boxplot(dplyr::bind_rows(dplyr::select(k567.cluster0, "allData_I6"), dplyr::select(k567.cluster1, "cluster1_I6"), dplyr::select(k567.cluster2, "cluster2_I6"), dplyr::select(k567.cluster3, "cluster3_I6")))
+boxplot(dplyr::bind_rows(dplyr::select(k567.cluster0, "allData_I7"), dplyr::select(k567.cluster1, "cluster1_I7"), dplyr::select(k567.cluster2, "cluster2_I7"), dplyr::select(k567.cluster3, "cluster3_I7")))
+```
+
+
+```{r}
+scale(df_info[ ,c('I5', 'I6', 'I7')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> k567.cboot
+paste(c("Stability: ", k567.cboot$bootmean), collapse=" ")
+```
+
+### k57
+```{r}
+df %>% ggplot(aes(x = flowDay, y = flowdiff, col = as.factor(h_year))) + geom_line() + facet_wrap(~clusterk57) + labs(color = 'h_year')
+
+df_mod57 <- melt(df_info, id.vars='peak_number', 
+                  measure.vars=c('I5', 'I7'))
+ggplot(df_mod57) + geom_boxplot(aes(x=peak_number, y=value, color=variable))
+
+
+k57.cluster0 <- df_info %>% summarise(year = peak_number+min(df$h_year)-1,
+                                      allData_I5 = I5,
+                                      allData_I7 = I7)
+k57.cluster1 <- filter(df_info, clusterkAll == 1) %>% summarise(year = peak_number+min(df$h_year)-1, 
+                                                                cluster1_I5 = I5,
+                                                                cluster1_I7 = I7)
+k57.cluster2 <- filter(df_info, clusterkAll == 2) %>% summarise(year = peak_number+min(df$h_year)-1, 
+                                                                cluster2_I5 = I5,
+                                                                cluster2_I7 = I7)
+k57.cluster3 <- filter(df_info, clusterkAll == 3) %>% summarise(year = peak_number+min(df$h_year)-1, 
+                                                                cluster3_I5 = I5,
+                                                                cluster3_I7 = I7)
+
+paste(c("Cluster1: ", k57.cluster1$year), collapse=" ")
+paste(c("Cluster2: ", k57.cluster2$year), collapse=" ")
+paste(c("Cluster3: ", k57.cluster3$year), collapse=" ")
+
+
+# boxplot za svaki parametar
+
+boxplot(dplyr::bind_rows(dplyr::select(k57.cluster0, "allData_I5"), dplyr::select(k57.cluster1, "cluster1_I5"), dplyr::select(k57.cluster2, "cluster2_I5"), dplyr::select(k57.cluster3, "cluster3_I5")))
+boxplot(dplyr::bind_rows(dplyr::select(k57.cluster0, "allData_I7"), dplyr::select(k57.cluster1, "cluster1_I7"), dplyr::select(k57.cluster2, "cluster2_I7"), dplyr::select(k57.cluster3, "cluster3_I7")))
+```
+
+
+```{r}
+scale(df_info[ ,c('I5', 'I7')]) %>% clusterboot(clustermethod = kmeansCBI, B = 1000, k = 3, count = FALSE, seed = 9999) -> k57.cboot
+paste(c("Stability: ", k57.cboot$bootmean), collapse=" ")
+```
+

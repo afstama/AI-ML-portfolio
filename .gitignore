@@ -1,0 +1,27 @@
+# OS junk
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Editors
+.vscode/
+.idea/
+
+# Large public datasets (download separately — see project READMEs)
+# Kaggle "Climate Change: Earth Surface Temperature Data" (~230 MB, exceeds GitHub's file limit)
+data-mining-neural-networks/exercise2-timeseries-clustering/GlobalLandTemperaturesByCity.csv

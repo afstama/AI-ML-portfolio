@@ -1,0 +1,76 @@
+POKUŠAJ ODVAJANJA DIREKTNOG I BAZNOG OTJECANJA KAKO BI SE MOGAO PRORAČUNATI DIREKTNI VOLUMEN (DIREKTNI VOLUMEN (Vd)=UKUPNI VOLUMEN (V) - VOLUMEN BAZNOG DOTOKA(Vb)) - od svega napisanog, Vama je potreban redak 16 koji računa funkciju koja opisuje bazni dotok
+
+```{r}
+data <- read.csv('Zagreb_dnevniQ-1960-2019.csv', header=T)
+data$Date <- as.Date(data$Date,"%d/%m/%Y" )
+
+#PRIPREMA PODATAKA U FORMAT KOJI ZAHTJEVA FUNKCIJA "createlfobj" koja određuje bazni dotok (baseflow) - red 18
+data <- data.frame(day=as.numeric(format(data$Date,format="%d")),
+                   month=as.numeric(format(data$Date,format="%m")),
+                   year=as.numeric(format(data$Date,format="%Y")),
+                   flow=data$Flow..m3.s.,
+                   Date=data$Date)                         
+
+#UČITAVANJE lfstat PAKETA I POZIVANJE FUNKCIJE ZA ODREĐIVANJE BAZNOG DOTOKA, hyearstart=1 označava da se gleda kalendarska godina koja kreće  od siječnja; plotanje podataka je samo za vizualnu potvrdu - nije potrebno
+library(lfstat)
+Zagreb_bf <- createlfobj(data, hyearstart=1, baseflow=TRUE)
+Zagreb_bf$Date <- data$Date
+#data$baseflow <- baseflow(data$Flow,tp.factor = 0.9, block.len = 5)
+plot(Zagreb_bf$flow, type="l")
+lines(Zagreb_bf$baseflow, col=2)
+Zagreb_bf <- as.data.frame(Zagreb_bf)
+
+#Naredni reci daju godišnje maksimume - napravili ste na drugačiji način
+Qmax <- tapply(data$flow, data$year, max) #apply 'max' to each year
+Qmax <- data.frame(year=names(Qmax), flow=Qmax) #converting 'Qmax' to data frame
+Qmax$year <- as.numeric(Qmax$year)
+Qmax$flow <- as.numeric(Qmax$flow)
+```
+
+```{r}
+#STVARANJE DATA FRAME-a Qmax_AM KOJI ĆE SADRŽAVATI DODATNI STUPAC (3) U KOJEM SE NALAZI INDEX PEAKA IZ GLAVNOG DATA FRAME-a "data" KAKO BI SE KASNIJE MOGLA PRONAĆI SJECIŠTA DVIJE FUNKCIJE - ovaj pristup je ideja, a Vi ste to u svojem kodu napravili na puno jednostavniji način opisom varijable pa pretpostavljam da Vam neće trebati
+row_num <- function(data, peak){Index <- which(apply(data, 1, function(r) all(r==peak)))
+      Proba <- data.frame(Index)
+      return(c(Proba,Index))}
+data_pom<-data.frame(data$year,data$flow)
+Peak_temp<-row_num(data_pom,Qmax[1,])
+Qmax_AM<-data.frame(Qmax[1,],Peak_temp[1])
+for(i in 2:nrow(Qmax)){Peak_temp <- row_num(data_pom,Qmax[i,])
+Qmax_AM<-rbind(Qmax_AM,data.frame(Qmax[i,],Peak_temp[1]))}
+
+```
+
+```{r}
+#ODREĐIVANJE INDEXA POČETKA VALA (start day) -  ERROR SE DOGODI JER ZA POPLAVNI DOGAĐAJ KOJI SE DOGODI 2019 GODINE NEMA PODATAKA O BASEFLOWU PA JE 2019 GODINA NAKNADNO IZBAČENA IZ PRORAČUNA
+for(i in 1:nrow(Qmax_AM)){
+  for(j in seq(from = Qmax_AM[i,3], to = 1, by = -1)){
+    if(Zagreb_bf[j,4] == Zagreb_bf[j,6]){
+      Qmax_AM[i,4]<-data.frame(go_up_rnum = j)
+      break
+    } 
+  }
+}
+#PONAVLJANJE POSTUPKA DOBIVANJA INDEXA KRAJA VALA (end day) - ISTI ERROR ZBOG 2019 GODINE
+for(i in 1:nrow(Qmax_AM)){
+  for(j in seq(from = Qmax_AM[i,3], to = nrow(Zagreb_bf), by = 1)){
+    if(Zagreb_bf[j,4] == Zagreb_bf[j,6]){
+      Qmax_AM[i,5]<-data.frame(go_down_rnum = j)
+      break
+    } 
+  }
+}
+Qmax_AM <- head(Qmax_AM,-1)
+```
+
+```{r}
+
+#NAREDNI DIO JE NERAZRAĐENA METODA ODREĐIVANJA TRAJANJA, UKUPNOG VOLUMENA VODNOG VALA, VOLUMENA BAZNOG DOTOKA I VOLUMENA DIREKTNOG DOTOKA (razlika ukupno i baznog dotoka) - vjerojatno ćete zanemariti obzirom da postoji brži način za normalizaciju Y osi
+vol_dur$Duration[i] <- end_day_number - start_day_number
+
+Total_Flood_Volume <- sum(station_bf$flow[start_day_number:end_day_number])*3600*24
+
+Baseflow_volume <- sum(station_bf$baseflow[start_day_number:end_day_number])*3600*24
+
+vol_dur$Flood_Runoff_volume[i] <- Total_Flood_Volume - Baseflow_volume
+```
+
